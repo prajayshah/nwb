@@ -5,15 +5,17 @@ import pandas as pd
 import datetime
 
 # # initialize dataframe for saving the tracking .csv file as you create NWB files
-# columns = ['cell_id', 'recording_date', 'exp_condition', 'cell_type', 'gain', 'dc',
+# columns = ['cell_id', 'recording_date', 'exp_condition', 'cell_type', 'gain', 'dc', 'RMP',
 #        'firing rate', 'nwb_create_date', 'analysis_date']
 #
 # df = pd.DataFrame(columns=columns)
-# df.to_csv('/Volumes/HD1/White_noise/ResponseVariabilityCells.csv', index=False)
+# df.to_csv('/Volumes/PrajayShah_1TB/Work/White noise/ResponseVariabilityCells.csv', index=False)
+#
+excel_location = '/Volumes/PrajayShah_1TB/Work/White noise/ResponseVariabilityCells.csv'
 
 def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
                        date='', cell_number='', cell_type='', cell_id='', species='', gain=0.0, dc='not_given',
-                       offset=None, protocol='white noise'):
+                       offset=None, protocol='white noise', excel_location=excel_location):
 
     '''
     This function is designed to save the metadata and experimental data (.abf file) from a patch-clamp
@@ -40,7 +42,7 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
     fpath = file_path; f = cell_id
 
     # Load up abf file
-    print('Loading data...')
+    print('Loading %s ...' % cell_id)
     h = {}
     si = {}  # sampling intervals for each cell in us
     d = {}
@@ -122,7 +124,7 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
     io.write(nwbfile)
     io.close()
 
-    df = pd.read_csv('/Volumes/HD1/White_noise/ResponseVariabilityCells.csv')
+    df = pd.read_csv(excel_location)
 
     df_append = df.append({'cell_id': cell_id,
                            'recording_date': date,
@@ -133,9 +135,10 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
                            'nwb_create_date': datetime.datetime.now().strftime("%I:%M%p %B %d, %Y")
                            }, ignore_index=True)
 
-    df_append.to_csv('/Volumes/HD1/White_noise/ResponseVariabilityCells.csv', index=False)
+    df_append.to_csv(excel_location, index=False)
 
-
+    print('%s' % cell_id, "Done!")
+    print('')
 
 ## WRITE NWB files
 
@@ -174,9 +177,75 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
 #                    experiment_condition='Epilepsy',
 #                    gain=20., dc='100', offset='-17.5')
 
-writeNWBpatchClamp(file_path="/Volumes/HD1/White_noise/Human_tissue/Tumor cases/October 22, 2018/Cell 3/Gain 40/18o22025.abf",
-                   output_path="/Volumes/HD1/White_noise/Human_tissue/Tumor cases/nwb files/",
-                   date='Oct 22, 2018', cell_number='3', cell_type='Hu L2/3', cell_id='18o22025', species='Human',
-                   experiment_condition='Tumor',
-                   gain=40., dc='125', offset='-20')
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 01, 2018/Cell 3/Gain 20/18201012.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='Feb 01, 2018', cell_number='3', cell_type='Hu L5', cell_id='18201012', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=20., dc='75', offset='0', excel_location=excel_location)
 
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 01, 2018/Cell 5/Gain 20/18201033.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='Feb 01, 2018', cell_number='5', cell_type='Hu L5', cell_id='18201033', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=20., dc='125', offset='0', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 20, 2018/Cell 3/Gain 40/18220014.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='Feb 20, 2018', cell_number='3', cell_type='Hu L5', cell_id='18220014', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='25', offset='-21.9', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 20, 2018/Cell 3/Gain 40/18220015.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='Feb 20, 2018', cell_number='3', cell_type='Hu L5', cell_id='18220015', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='50', offset='-21.9', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 17, 2018/Cell 2/Gain 40/18417017.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 17, 2018', cell_number='4', cell_type='Hu L5', cell_id='18417017', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='100', offset='-18.8', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 17, 2018/Cell 2/Gain 40/18417018.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 17, 2018', cell_number='4', cell_type='Hu L5', cell_id='18417018', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='125', offset='-18.8', excel_location=excel_location)
+#
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 17, 2018/Cell 2/Gain 40/18417019.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 17, 2018', cell_number='4', cell_type='Hu L5', cell_id='18417019', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='150', offset='-18.8', excel_location=excel_location)
+#
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 26, 2018/Cell 1/Gain 40/18426011.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 26, 2018', cell_number='1', cell_type='Hu L5', cell_id='18426011', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=40., dc='50', offset='-14.5', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 26, 2018/Cell 1/Gain 50/18426014.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 26, 2018', cell_number='1', cell_type='Hu L5', cell_id='18426014', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=50., dc='175', offset='-14.5', excel_location=excel_location)
+
+# writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/April 26, 2018/Cell 2/Gain 70/18426019.abf",
+#                    output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+#                    date='April 26, 2018', cell_number='2', cell_type='Hu L2/3', cell_id='18426019', species='Human',
+#                    experiment_condition='Epilepsy',
+#                    gain=70., dc='200', offset='-18', excel_location=excel_location)
+
+
+writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 01, 2018/Cell 1/Gain 20/18201007.abf",
+                   output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+                   date='Feb 01, 2018', cell_number='1', cell_type='Hu L5', cell_id='18201007', species='Human',
+                   experiment_condition='Epilepsy',
+                   gain=20., dc='100', offset='-21.0', excel_location=excel_location)
+
+writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/Feb 01, 2018/Cell 1/Gain 20/18201008.abf",
+                   output_path="/Volumes/PrajayShah_1TB/Work/White noise/Human_tissue/Epilepsy cases/nwb files/",
+                   date='Feb 01, 2018', cell_number='1', cell_type='Hu L5', cell_id='18201008', species='Human',
+                   experiment_condition='Epilepsy',
+                   gain=20., dc='150', offset='-21.0', excel_location=excel_location)
