@@ -16,6 +16,6 @@ def readNWBpatchClamp(fpath):
 
     io.close()
 
-    return nwbfile, ccss, ccs
+    return nwbfile, ccss, ccs, current_stimulus, current_clamp
 
 [nwbfile, ccss, ccs] = readNWBpatchClamp(fpath='/Volumes/HD1/White_noise/Human_tissue/Epilepsy cases/nwb files/18220020.nwb')
