@@ -1,5 +1,6 @@
 import numpy as np
 from neo import io as nio   # note this code is validated for neo-0.5.2
+import pyabf
 from pynwb import NWBFile, NWBHDF5IO
 import pandas as pd
 import datetime
@@ -29,7 +30,7 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
     :param species:         species
     :param gain:            gain of the cell recording data
     :param DC:              DC level at which cell was recorded at
-    :param offset:          resting membrane potential offset
+    :param offset:          resting membrane potential (RMP) offset between raw data and actual RMP value
 
     :return:
     '''
@@ -38,37 +39,58 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
     # Load up the abf file into python
     # ----------------------------------------------------------------------------------------------------------------------
 
-
     fpath = file_path; f = cell_id
 
-    # Load up abf file
+    # Load up abf file with pyABF
     print('Loading %s ...' % cell_id)
-    h = {}
-    si = {}  # sampling intervals for each cell in us
-    d = {}
-    V = {}
-    I = {}
 
-    a = nio.AxonIO(filename=fpath)
-    bl = bl = a.read_block(lazy=False, signal_group_mode='split-all', units_group_mode='split-all')
-    # - .segments represent sweeps (one segment = one sweep)
-    # - .analogsignals for each segment: numpy array of voltage recordings and current input,
-    #   length of recording block, and sampling rate
-    iclamp = 0  # channel 4 as voltage channel
-    current_in = 1  # channel 14 as command channel
-    V[f] = []  # numpy array of voltage recordings for all sweeps/segments - rows = sweeps, columns = data
-    for i in range(0, len(bl.segments)):
-        a = bl.segments[i].analogsignals[iclamp].__array__().tolist()
-        V[f].append([item for x in a for item in x])
-    V[f] = np.array(V[f])
-    I[f] = []  # numpy array of stimulus for all sweeps/segments - rows = sweeps, columns = data
-    for i in range(0, len(bl.segments)):
-        a = bl.segments[i].analogsignals[current_in].__array__().tolist()
-        I[f].append([item for x in a for item in x])
-    I[f] = np.array(I[f])
+    V = {} # initialize voltage sweep databox
+    I = {} # initialize command databox
 
-    # save data block for each cell
-    d[f] = bl
+    a = pyabf.ABF(fpath)
+    V[cell_id] = np.empty((a.sweepCount, a.sweepPointCount),
+                          float)  # numpy array of voltage recordings for all sweeps/segments - rows = sweeps, columns = data
+    for i in range(0, a.sweepCount):
+        a.setSweep(i)
+        data = a.sweepY
+        V[cell_id][i] = data
+
+    I[cell_id] = np.empty((a.sweepCount, a.sweepPointCount),
+                          float)  # numpy array of command current recordings for all sweeps/segments - rows = sweeps, columns = data
+    for i in range(0, a.sweepCount):
+        a.setSweep(i)
+        data = a.sweepC
+        I[cell_id][i] = data
+
+
+
+    # # Load up abf file - legacy nio importer (less functionality than pyABF and prone to breaking)
+    # print('Loading %s ...' % cell_id)
+    # h = {}
+    # si = {}  # sampling intervals for each cell in us
+    # d = {}
+    # V = {}
+    # I = {}
+    #
+    # a = nio.AxonIO(filename=fpath)
+    # bl = a.read_block(lazy=False, signal_group_mode='split-all', units_group_mode='split-all')
+    # # - .segments represent sweeps (one segment = one sweep)
+    # # - .analogsignals for each segment: numpy array of voltage recordings and current input, length of recording block, and sampling rate
+    # iclamp = 0  # channel 4 as voltage channel
+    # current_in = 1  # channel 14 as command channel
+    # V[f] = []  # numpy array of voltage recordings for all sweeps/segments - rows = sweeps, columns = data
+    # for i in range(0, len(bl.segments)):
+    #     a = bl.segments[i].analogsignals[iclamp].__array__().tolist()
+    #     V[f].append([item for x in a for item in x])
+    # V[f] = np.array(V[f])
+    # I[f] = []  # numpy array of stimulus for all sweeps/segments - rows = sweeps, columns = data
+    # for i in range(0, len(bl.segments)):
+    #     a = bl.segments[i].analogsignals[current_in].__array__().tolist()
+    #     I[f].append([item for x in a for item in x])
+    # I[f] = np.array(I[f])
+    #
+    # # save data block for each cell
+    # d[f] = bl
 
 
     # ----------------------------------------------------------------------------------------------------------------------
@@ -147,13 +169,47 @@ def writeNWBpatchClamp(file_path='', output_path='', experiment_condition='',
     print('')
 
 ## WRITE NWB files
+writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White_noise/Human_tissue/Epilepsy cases/March 29, 2018/Cell 2/Gain 20/18329010.abf",
+                   output_path="/Users/prajayshah/OneDrive - University of Toronto/UTPhD/White noise/Human tissue/March 29, 2018/",
+                   date='Mar 29, 2018', cell_number='2', cell_type='Hu L2/3', cell_id='18329010', species='Human',
+                   experiment_condition='Epilepsy',
+                   gain=20., dc='25', offset='-15')
+
 
 # # error
-# # writeNWBpatchClamp(file_path="/Users/prajayshah/OneDrive - University of Toronto/UTPhD/White noise/Human tissue/March 29, 2018/Cell 2/Gain 20/18329010.abf",
-# #                    output_path="/Users/prajayshah/OneDrive - University of Toronto/UTPhD/White noise/Human tissue/March 29, 2018/",
-# #                    date='Mar 29, 2018', cell_number='2', cell_type='Hu L2/3', cell_id='18329010', species='Human',
-# #                    experiment_condition='Epilepsy',
-# #                    gain=20., dc='25', offset='-15')
+writeNWBpatchClamp(file_path="/Volumes/PrajayShah_1TB/Work/White_noise/Human_tissue/Epilepsy cases/March 29, 2018/Cell 2/Gain 20/18329010.abf",
+                   output_path="/Users/prajayshah/OneDrive - University of Toronto/UTPhD/White noise/Human tissue/March 29, 2018/",
+                   date='Mar 29, 2018', cell_number='2', cell_type='Hu L2/3', cell_id='18329010', species='Human',
+                   experiment_condition='Epilepsy',
+                   gain=20., dc='25', offset='-15')
+
+
+## trying out pyABF
+fpath = "/Volumes/PrajayShah_1TB/Work/White_noise/Human_tissue/Epilepsy cases/March 29, 2018/Cell 2/Gain 20/18329010.abf"
+cell_id='18329010'
+f = cell_id
+
+# load file with pyABF
+V = {}
+I = {}
+
+a = pyabf.ABF(fpath)
+V[cell_id] = np.empty((a.sweepCount,a.sweepPointCount), float)  # numpy array of voltage recordings for all sweeps/segments - rows = sweeps, columns = data
+for i in range(0, a.sweepCount):
+    a.setSweep(i)
+    data = a.sweepY
+    V[cell_id][i] = data
+
+I[cell_id] = np.empty((a.sweepCount,a.sweepPointCount), float)  # numpy array of voltage recordings for all sweeps/segments - rows = sweeps, columns = data
+for i in range(0, a.sweepCount):
+    a.setSweep(i)
+    data = a.sweepC
+    I[cell_id][i] = data
+
+
+
+
+
 #
 # # error
 # writeNWBpatchClamp(file_path="/Users/prajayshah/OneDrive - University of Toronto/UTPhD/White noise/Human tissue/March 29, 2018/Cell 2/Gain 40/18329011.abf",
